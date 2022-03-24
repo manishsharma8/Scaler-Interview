@@ -37,6 +37,7 @@ const ScheduleInterviewModal = ({ isOpen, setIsOpen }) => {
 			participants: participants,
 		});
 		console.log(res);
+		window.location.reload();
 	};
 
 	const handleSelectChange = (selected) => {

@@ -22,6 +22,11 @@ router.post('/scheduleInterview', async (req, res) => {
 	res.status(201).json({ interview });
 });
 
+router.delete('/interview/:id', async (req, res) => {
+	await Interview.deleteOne({ _id: req.params.id });
+	res.send('Interview Deleted');
+});
+
 router.get('/users', async (req, res) => {
 	const users = await User.find({});
 	res.json({ users });
