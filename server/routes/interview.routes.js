@@ -1,7 +1,8 @@
 const express = require('express');
-const router = express.Router();
 const Interview = require('../models/Interview');
 const User = require('../models/User');
+
+const router = express.Router();
 
 router.get('/interviews', async (req, res) => {
 	const interviews = await Interview.find({});
@@ -9,7 +10,15 @@ router.get('/interviews', async (req, res) => {
 });
 
 router.post('/scheduleInterview', async (req, res) => {
-	const interview = await Interview.create(req.body);
+	const { participants } = req.body;
+	participants.forEach((p) => {
+		delete p.label;
+		delete p.value;
+	});
+	const interview = await Interview.create({
+		...req.body,
+		participants,
+	});
 	res.status(201).json({ interview });
 });
 

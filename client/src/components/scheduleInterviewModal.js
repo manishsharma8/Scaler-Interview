@@ -1,20 +1,46 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
+import axios from 'axios';
 import { TimePicker } from 'antd';
 import 'antd/dist/antd.css';
 import moment from 'moment';
+import { API_BASE_URL } from '../utils/constants';
+import Select from 'react-select';
 
 const ScheduleInterviewModal = ({ isOpen, setIsOpen }) => {
 	const format = 'HH:mm';
 	const [title, setTitle] = useState('');
 	const [startTime, setStartTime] = useState(moment());
 	const [endTime, setEndTime] = useState(moment().add(1, 'h'));
+	const [participants, setParticipants] = useState([]);
+	const [options, setOptions] = useState([]);
 
-	const handleSubmit = () => {
+	useEffect(() => {
+		axios
+			.get(API_BASE_URL + '/users')
+			.then((res) => setOptions(res.data.users));
+	}, []);
+
+	useEffect(() => {
+		options.forEach((option) => {
+			option.label = option.firstName;
+			option.value = option._id;
+		});
+	}, [options]);
+
+	const handleSubmit = async () => {
 		setIsOpen(false);
-		// console.log('start time: ', startTime);
-		// console.log('end time: ', endTime);
-		// console.log('title', title);
+		const res = await axios.post(API_BASE_URL + '/scheduleInterview', {
+			title: title,
+			startTime: startTime,
+			endTime: endTime,
+			participants: participants,
+		});
+		console.log(res);
+	};
+
+	const handleSelectChange = (selected) => {
+		setParticipants(selected);
 	};
 
 	return (
@@ -53,7 +79,7 @@ const ScheduleInterviewModal = ({ isOpen, setIsOpen }) => {
 							leaveFrom="opacity-100 scale-100"
 							leaveTo="opacity-0 scale-95"
 						>
-							<div className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+							<div className="inline-block w-full max-w-2xl p-6 my-8 text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
 								<Dialog.Title
 									as="h3"
 									className="text-lg font-medium leading-6 text-gray-900"
@@ -77,10 +103,14 @@ const ScheduleInterviewModal = ({ isOpen, setIsOpen }) => {
 									</div>
 									<div className="w-2/5">
 										<h4 className="mb-1 font-medium">Participants</h4>
-										<input
-											className="w-full border-2 bg-gray-100 px-3 py-2 rounded-md focus:border-blue-500 outline-none"
-											placeholder="Participants"
+										{/* {options.label ? ( */}
+										<Select
+											closeMenuOnSelect={false}
+											isMulti
+											onChange={handleSelectChange}
+											options={options}
 										/>
+										{/* ) : null} */}
 									</div>
 								</div>
 								<div className="mt-8 flex text-gray-500 gap-12">
