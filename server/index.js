@@ -1,11 +1,18 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-let bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const interviewRoutes = require('./routes/interview.routes');
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+	cors({
+		origin: 'http://localhost:3000',
+	})
+);
 
 mongoose.connect(process.env.ATLAS_CONNECTION, {
 	useNewUrlParser: true,
@@ -20,5 +27,7 @@ connection.once('open', () => {
 app.get('/', (req, res) => {
 	res.send('Hello World');
 });
+
+app.use('/api', interviewRoutes);
 
 app.listen(5000, () => console.log('Server listening at port 5000'));
