@@ -2,12 +2,12 @@ import { useState } from 'react';
 import ScheduleInterviewModal from './scheduleInterviewModal';
 
 const CreateButton = () => {
-	let [isOpen, setIsOpen] = useState(true);
+	let [isOpen, setIsOpen] = useState(false);
 	return (
-		<div>
+		<div className="flex-end">
 			<button
 				onClick={() => setIsOpen(true)}
-				className="float-right flex rounded-md text-gray-600 bg-white p-3 text-base"
+				className="flex rounded-md text-gray-600 bg-white border-2 border-gray-200 p-3"
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
