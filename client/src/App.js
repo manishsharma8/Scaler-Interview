@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import CreateButton from './components/createButton';
 import InterviewList from './components/interviewsList';
 
 const App = () => {
+	const [isOpen, setIsOpen] = useState(false);
 	return (
 		<div className="mx-48 mt-16">
 			<div className="flex justify-between">
@@ -9,7 +11,7 @@ const App = () => {
 				<CreateButton />
 			</div>
 			<div className="mt-10">
-				<InterviewList />
+				<InterviewList isOpen={isOpen} setIsOpen={setIsOpen} />
 			</div>
 		</div>
 	);

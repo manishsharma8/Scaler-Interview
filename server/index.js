@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const interviewRoutes = require('./routes/interview.routes');
+const User = require('./models/User');
 
 const app = express();
 app.use(bodyParser.json());
@@ -29,5 +30,10 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', interviewRoutes);
+
+app.get('/api/users', async (req, res) => {
+	const users = await User.find({});
+	res.json({ users });
+});
 
 app.listen(5000, () => console.log('Server listening at port 5000'));

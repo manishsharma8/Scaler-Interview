@@ -3,15 +3,26 @@ import axios from 'axios';
 import { API_BASE_URL } from '../utils/constants';
 import moment from 'moment';
 import { Menu, Transition } from '@headlessui/react';
+import ScheduleInterviewModal from './scheduleInterviewModal';
 
-const InterviewList = () => {
+const InterviewList = ({ isOpen, setIsOpen }) => {
+	const [edit, setEdit] = useState(false);
 	const [interviews, setInterviews] = useState([]);
+	const [id, setId] = useState(null);
+	const [title, setTitle] = useState('');
+	const [participants, setParticipants] = useState([]);
+	const [startTime, setStartTime] = useState('');
+	const [endTime, setEndTime] = useState('');
 
 	useEffect(() => {
 		axios
 			.get(API_BASE_URL + '/interviews')
 			.then((res) => setInterviews(res.data.interviews));
 	}, []);
+
+	useEffect(() => {
+		if (!isOpen) setEdit(false);
+	}, [isOpen]);
 
 	const handleDelete = async (id) => {
 		await axios.delete(API_BASE_URL + `/interview/${id}`);
@@ -87,7 +98,15 @@ const InterviewList = () => {
 									<Menu.Items className="absolute z-10 flex flex-col right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
 										<Menu.Item
 											className="p-3 cursor-pointer hover:bg-slate-100 rounded"
-											onClick={() => console.log('edit')}
+											onClick={() => {
+												setEdit(true);
+												setIsOpen(true);
+												setId(interview._id);
+												setTitle(interview.title);
+												setStartTime(interview.startTime);
+												setEndTime(interview.endTime);
+												setParticipants(interview.participants);
+											}}
 										>
 											{() => <div>Edit</div>}
 										</Menu.Item>
@@ -104,6 +123,18 @@ const InterviewList = () => {
 					</div>
 				</div>
 			))}
+			{edit && (
+				<ScheduleInterviewModal
+					edit={edit}
+					isOpen={isOpen}
+					setIsOpen={setIsOpen}
+					_id={id}
+					title={title}
+					startTime={startTime}
+					endTime={endTime}
+					participants={participants}
+				/>
+			)}
 		</div>
 	);
 };

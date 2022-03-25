@@ -3,6 +3,7 @@ import ScheduleInterviewModal from './scheduleInterviewModal';
 
 const CreateButton = () => {
 	let [isOpen, setIsOpen] = useState(false);
+
 	return (
 		<div className="flex-end">
 			<button
