@@ -15,6 +15,7 @@ const ScheduleInterviewModal = (props) => {
 	const [participants, setParticipants] = useState([]);
 	const [options, setOptions] = useState([]);
 	const [error, setError] = useState(null);
+	const [formError, setFormError] = useState(null);
 
 	useEffect(() => {
 		axios
@@ -44,39 +45,46 @@ const ScheduleInterviewModal = (props) => {
 	}, [options]);
 
 	const handleSubmit = async () => {
-		props.setIsOpen(false);
-		if (props.edit) {
-			const res = await axios.put(
-				API_BASE_URL + `/scheduleInterview/${props._id}`,
-				{
+		if (title === '') {
+			setFormError('Title Required');
+		} else if (participants.length < 2) {
+			setFormError('There should be atleast 2 participants');
+		} else {
+			props.setIsOpen(false);
+			if (props.edit) {
+				const res = await axios.post(
+					API_BASE_URL + `/updateInterview/${props._id}`,
+					{
+						title: title,
+						startTime: startTime,
+						endTime: endTime,
+						participants: participants,
+					}
+				);
+				if (typeof res.data === 'string' && res.data.includes('preoccupied')) {
+					setError(res.data);
+					setTimeout(function () {
+						setError(null);
+					}, 5000);
+				} else {
+					window.location.reload();
+				}
+			} else {
+				const res = await axios.post(API_BASE_URL + '/scheduleInterview', {
 					title: title,
 					startTime: startTime,
 					endTime: endTime,
 					participants: participants,
+				});
+
+				if (typeof res.data === 'string' && res.data.includes('preoccupied')) {
+					setError(res.data);
+					setTimeout(function () {
+						setError(null);
+					}, 5000);
+				} else {
+					window.location.reload();
 				}
-			);
-			if (typeof res.data === 'string' && res.data.includes('preoccupied')) {
-				setError(res.data);
-				setTimeout(function () {
-					setError(null);
-				}, 5000);
-			} else {
-				window.location.reload();
-			}
-		} else {
-			const res = await axios.post(API_BASE_URL + '/scheduleInterview', {
-				title: title,
-				startTime: startTime,
-				endTime: endTime,
-				participants: participants,
-			});
-			if (typeof res.data === 'string' && res.data.includes('preoccupied')) {
-				setError(res.data);
-				setTimeout(function () {
-					setError(null);
-				}, 5000);
-			} else {
-				window.location.reload();
 			}
 		}
 	};
@@ -152,7 +160,7 @@ const ScheduleInterviewModal = (props) => {
 										Schedule a new interview with the participants.
 									</p>
 								</div>
-								<div className="mt-8 flex text-gray-500 gap-12">
+								<div className="flex text-gray-500 gap-12">
 									<div className="w-2/5">
 										<h4 className="mb-1 font-medium">Title</h4>
 										<input
@@ -184,6 +192,7 @@ const ScheduleInterviewModal = (props) => {
 										defaultValue={[startTime, endTime]}
 									/>
 								</div>
+								<div className="mt-3 text-red-500 font-medium">{formError}</div>
 								<div className="mt-8 flex gap-5">
 									<button
 										type="button"

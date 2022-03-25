@@ -21,31 +21,59 @@ router.post('/scheduleInterview', async (req, res) => {
 			{ startTime: { $lte: req.body.endTime } },
 		],
 	});
+	let ex = false;
 	clashingInterviews.forEach((interview) => {
-		const ex = interview.participants.some((participant) =>
-			participants.some((p) => p.email == participant.email)
-		);
-		if (ex) res.json('Participant already preoccupied');
+		if (
+			interview.participants.some((participant) =>
+				participants.some((p) => p.email == participant.email)
+			)
+		) {
+			ex = true;
+		}
 	});
-	const interview = await Interview.create({
-		...req.body,
-		participants,
-	});
-	res.status(201).json({ interview });
+	if (ex) {
+		res.json('Participant already preoccupied');
+	} else {
+		const interview = await Interview.create({
+			...req.body,
+			participants,
+		});
+		res.status(201).json({ interview });
+	}
 });
 
-router.put('/scheduleInterview/:id', async (req, res) => {
+router.post('/updateInterview/:id', async (req, res) => {
 	const _id = req.params.id;
 	const { participants } = req.body;
 	participants.forEach((p) => {
 		delete p.label;
 		delete p.value;
 	});
-	const interview = await Interview.findByIdAndUpdate(_id, {
-		...req.body,
-		participants,
+	const clashingInterviews = await Interview.find({
+		$and: [
+			{ endTime: { $gte: req.body.startTime } },
+			{ startTime: { $lte: req.body.endTime } },
+			{ _id: { $ne: _id } },
+		],
 	});
-	res.status(201).json({ interview });
+	let ex = false;
+	clashingInterviews.forEach((interview) => {
+		if (
+			interview.participants.some((participant) =>
+				participants.some((p) => p.email == participant.email)
+			)
+		) {
+			ex = true;
+		}
+	});
+	if (ex) res.json('Participant already preoccupied');
+	else {
+		await Interview.findByIdAndUpdate(_id, {
+			...req.body,
+			participants,
+		});
+		res.json('Interview Updated');
+	}
 });
 
 router.delete('/interview/:id', async (req, res) => {
