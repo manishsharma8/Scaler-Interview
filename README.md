@@ -3,6 +3,9 @@
 
 This repo contains the code of an Interview Portal where admin can schedule interviews with selected participants with no time clashes between them.
 
+
+![demo](https://raw.githubusercontent.com/manishsharma8/Scaler-Interview/main/common/images/demo.png)
+
 ## Running Locally
 ### UI _(react)_:
 
